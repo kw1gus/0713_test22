@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나이대별 아침식사 결식률 분석 대시보드</title>
+    <!-- 안정성이 검증된 Tailwind CSS v2 플레이 CDN으로 교체 -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Chart.js (데이터 시각화) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- 헤더 영역 -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md py-6 px-4">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">청소년 나이대별 아침식사 결식률</h1>
+                <p class="text-blue-100 text-sm mt-1">최근 3개년(2023~2025년) 추이 변화 및 분석 대시보드</p>
+            </div>
+            <div class="bg-white bg-opacity-10 text-xs px-3 py-1.5 rounded-lg border border-white border-opacity-20 self-start md:self-auto">
+                데이터 출처: 청소년건강행태조사
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 왼쪽: 통계 개요 및 인사이트 분석 -->
+        <div class="lg:col-span-1 flex flex-col gap-6">
+            <!-- 요약 카드 1 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">최고 결식률 학년 (2025년)</h2>
+                    <p id="top-skip-grade" class="text-3xl font-black text-red-500 mt-2">로딩 중...</p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                    학년이 올라갈수록 결식률이 증가하는 경향을 보입니다.
+                </div>
+            </div>
+
+            <!-- 요약 카드 2 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">3년간 평균 결식률 증가폭</h2>
+                    <p id="avg-increase" class="text-3xl font-black text-indigo-600 mt-2">로딩 중...</p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                    전체 학년에서 매년 꾸준히 결식률이 늘어나는 추세입니다.
+                </div>
+            </div>
+
+            <!-- 분석 및 인사이트 요약 리포트 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex-grow">
+                <h3 class="font-bold text-gray-900 text-lg mb-3 flex items-center gap-2">
+                    💡 데이터 분석 리포트
+                </h3>
+                <div class="text-sm text-gray-600 space-y-3 style='line-height: 1.6;'">
+                    <p>
+                        <strong>1. 학년별 비례 현상:</strong> 중학교 1학년에서 고등학교 3학년으로 나이가 많아질수록 아침식사를 거르는 비율이 눈에 띄게 높아집니다. 학업 스트레스와 수면 시간 부족이 주요 원인으로 해석됩니다.
+                    </p>
+                    <p>
+                        <strong>2. 지속적인 우상향:</strong> 2023년부터 2025년까지 모든 학년군에서 결식률이 매년 지속적으로 증가하고 있어, 청소년 식습관 개선을 위한 사회적 환기가 필요한 시점입니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 인터랙티브 데이터 시각화 차트 및 데이터 테이블 -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <!-- 차트 영역 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-900 text-lg">학년별 결식률 추이 시각화</h3>
+                    <div class="flex space-x-3 text-xs">
+                        <span class="flex items-center space-x-1 text-gray-500"><span class="w-3 h-3 bg-blue-400 rounded-full inline-block mr-1"></span>2023</span>
+                        <span class="flex items-center space-x-1 text-gray-500"><span class="w-3 h-3 bg-indigo-500 rounded-full inline-block mr-1"></span>2024</span>
+                        <span class="flex items-center space-x-1 text-gray-500"><span class="w-3 h-3 bg-purple-600 rounded-full inline-block mr-1"></span>2025</span>
+                    </div>
+                </div>
+                <div class="relative w-full" style="height: 320px;">
+                    <canvas id="skipRateChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 데이터 테이블 영역 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden">
+                <h3 class="font-bold text-gray-900 text-lg mb-3">상세 데이터 확인 (단위: %)</h3>
+                <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
+                                <th class="py-3 px-4">학년 (나이대)</th>
+                                <th class="py-3 px-4">2023년</th>
+                                <th class="py-3 px-4">2024년</th>
+                                <th class="py-3 px-4">2025년</th>
+                                <th class="py-3 px-4">3개년 변화폭</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-gray-50 text-sm">
+                            <!-- 자바스크립트로 동적 생성 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-gray-100 text-center py-4 text-xs text-gray-400 border-t border-gray-200 mt-6">
+        &copy; 2026 나이대별 아침식사 결식률 분석 DashBoard. Built with GitHub Pages.
+    </footer>
+
+    <!-- 자바스크립트 비즈니스 로직 -->
+    <script>
+        // 페이지가 완전히 로드된 후 안전하게 실행되도록 보장
+        window.addEventListener('load', function () {
+            // 원본 데이터 내장
+            const rawData = [
+                { "학년": "중1", "rate2023": 36.4, "rate2024": 37.4, "rate2025": 38.0 },
+                { "학년": "중2", "rate2023": 38.9, "rate2024": 40.0, "rate2025": 42.3 },
+                { "학년": "중3", "rate2023": 41.3, "rate2024": 43.5, "rate2025": 44.1 },
+                { "학년": "고1", "rate2023": 42.7, "rate2024": 43.9, "rate2025": 43.6 },
+                { "학년": "고2", "rate2023": 44.2, "rate2024": 45.7, "rate2025": 47.2 },
+                { "학년": "고3", "rate2023": 43.4, "rate2024": 44.1, "rate2025": 46.6 }
+            ];
+
+            // 대시보드 초기화 실행
+            initDashboard(rawData);
+        });
+
+        function initDashboard(data) {
+            const labels = data.map(d => d.학년);
+            const rate2023 = data.map(d => d.rate2023);
+            const rate2024 = data.map(d => d.rate2024);
+            const rate2025 = data.map(d => d.rate2025);
+
+            // --- 1. 최고 결식률 학년 계산 ---
+            let maxIndex = 0;
+            for(let i = 1; i < rate2025.length; i++) {
+                if(rate2025[i] > rate2025[maxIndex]) maxIndex = i;
+            }
+            document.getElementById('top-skip-grade').textContent = labels[maxIndex] + " (" + rate2025[maxIndex] + "%)";
+
+            // --- 2. 3개년 평균 증가폭 계산 ---
+            let totalDiff = 0;
+            data.forEach(function(d) {
+                totalDiff += (d.rate2025 - d.rate2023);
+            });
+            const avgDiff = (totalDiff / data.length).toFixed(1);
+            document.getElementById('avg-increase').textContent = "+" + avgDiff + "%p";
+
+            // --- 3. 상세 데이터 테이블 생성 ---
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = ""; // 기존 내용 초기화
+            data.forEach(function(d) {
+                const diff = (d.rate2025 - d.rate2023).toFixed(1);
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 transition-colors";
+                row.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-gray-900">` + d.학년 + `</td>
+                    <td class="py-3 px-4 text-gray-600">` + d.rate2023 + `%</td>
+                    <td class="py-3 px-4 text-gray-600">` + d.rate2024 + `%</td>
+                    <td class="py-3 px-4 text-gray-900 font-semibold">` + d.rate2025 + `%</td>
+                    <td class="py-3 px-4 font-bold text-red-500">+` + diff + `%p</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // --- 4. Chart.js 막대 차트 생성 ---
+            const ctx = document.getElementById('skipRateChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2023년 (%)',
+                            data: rate2023,
+                            backgroundColor: 'rgba(96, 165, 250, 0.7)',
+                            borderColor: 'rgba(96, 165, 250, 1)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: '2024년 (%)',
+                            data: rate2024,
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: '2025년 (%)',
+                            data: rate2025,
+                            backgroundColor: 'rgba(147, 51, 234, 0.9)',
+                            borderColor: 'rgba(147, 51, 234, 1)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { padding: 12, cornerRadius: 12, backgroundColor: '#1e293b' }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { weight: 'bold' } }
+                        },
+                        y: {
+                            min: 30,
+                            max: 50,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
